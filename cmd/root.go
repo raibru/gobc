@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"rbr.de/baseconv/converter"
+	"github.com/raibru/gobaseconv/converter"
 )
 
 var bc converter.BaseContext

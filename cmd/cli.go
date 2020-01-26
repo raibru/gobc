@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/raibru/gobaseconv/converter"
 	"github.com/spf13/cobra"
-	"rbr.de/baseconv/converter"
 )
 
 var rootCmd = &cobra.Command{

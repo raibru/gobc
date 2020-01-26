@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"rbr.de/baseconv/cmd"
+	"github.com/raibru/gobaseconv/cmd"
 )
 
 func main() {
