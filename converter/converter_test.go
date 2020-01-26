@@ -1,0 +1,208 @@
+package converter
+
+import (
+	"bufio"
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
+)
+
+func Test_ApplyPipeInput_ExpectSuccess(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	var co = []Convertable{}
+	bc := BaseContext{Dec: "."}
+	vexp := "1"
+
+	co = append(co, &DecConverter{})
+	s := bufio.NewScanner(strings.NewReader(vexp))
+
+	// When
+	err := ApplyPipeInput(s, &co, &bc)
+
+	// Then
+	if err != nil {
+		t.Errorf("Failure: apply pipe input for decimal '1' fails by error: %v", err)
+	}
+}
+
+func Test_ApplyPipeInput_FailureByWrongParam(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	var co = []Convertable{}
+	bc := BaseContext{Dec: "#"}
+	vexp := "1"
+
+	co = append(co, &DecConverter{})
+	s := bufio.NewScanner(strings.NewReader(vexp))
+
+	// When
+	err := ApplyPipeInput(s, &co, &bc)
+
+	// Then
+	if err == nil {
+		t.Error("Failure: apply pipe input shall have an error but returns nil")
+	}
+}
+
+func Test_CreateConverter_ExpectSuccess(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	var co = []Convertable{}
+	bc := BaseContext{Dec: "1"}
+
+	co = append(co, &DecConverter{})
+
+	// When
+	conv, err := CreateConverter(&co, &bc)
+
+	// Then
+	if err != nil {
+		t.Errorf("Failure: create converter for decimal '1' fails by error: %v", err)
+	}
+	if conv == nil {
+		t.Error("Failure: create converter should not return nil")
+	}
+}
+
+func Test_CreateConverter_ExpectFailure_2_BaseParameters(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	expVal := "1"
+	bc := BaseContext{
+		Dec: expVal,
+		Hex: expVal}
+
+	var co = []Convertable{}
+	co = append(co, &DecConverter{})
+	co = append(co, &HexConverter{})
+
+	// When
+	result, err := CreateConverter(&co, &bc)
+
+	// Then
+	if err == nil {
+		t.Error("Failure: expect error with 2 base parameters but get none")
+	}
+	if result != nil {
+		t.Errorf("Failure: expect no result with 2 base parameters but get %v", result)
+	}
+}
+
+func Test_CreateConverter_ExpectFailure_None_BaseParameters(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	var co = []Convertable{}
+	bc := BaseContext{}
+
+	// When
+	result, err := CreateConverter(&co, &bc)
+
+	// Then
+	if err == nil {
+		t.Error("Failure: expect error with none base parameters but get none")
+	}
+	if result != nil {
+		t.Errorf("Failure: expect no result with none base parameters but get %v", result)
+	}
+}
+
+func Test_ParseBaseValue_ExpectSuccess(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	expVal := "1"
+	bc := BaseContext{Dec: expVal}
+
+	var co = []Convertable{}
+	co = append(co, &DecConverter{})
+
+	conv, err := CreateConverter(&co, &bc)
+
+	if err != nil || conv == nil {
+		t.Fatal("Fatal: can not create converter for decimal '1' parameter")
+	}
+
+	// When
+	result, perr := ParseBaseValue(conv, &bc)
+
+	// Then
+	if perr != nil {
+		t.Errorf("Failure: parse base value expect '%v' but get error: %v", expVal, perr)
+	}
+	if expVal != strconv.FormatInt(result, 10) {
+		t.Errorf("Failure: parse base value expect '%v' but get '%v'", expVal, result)
+	}
+
+}
+
+func Test_ParseBaseValue_ExpectFailure(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	expVal := "z"
+	bc := BaseContext{Dec: expVal}
+
+	var co = []Convertable{}
+	co = append(co, &DecConverter{})
+
+	conv, err := CreateConverter(&co, &bc)
+
+	if err != nil || conv == nil {
+		t.Fatal("Fatal: can not create converter for decimal '1' parameter")
+	}
+
+	// When
+	_, perr := ParseBaseValue(conv, &bc)
+
+	// Then
+	if perr == nil {
+		t.Errorf("Failure: parse base value '%v' expect error but get none", expVal)
+	}
+
+}
+
+func Test_ApplyBaseContext_ExpectSuccess(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	expVal := "1"
+	bc := BaseContext{
+		Dec: expVal}
+
+	var co = []Convertable{}
+	co = append(co, &DecConverter{})
+	co = append(co, &HexConverter{})
+	co = append(co, &OctConverter{})
+	co = append(co, &BinConverter{})
+
+	conv, err := CreateConverter(&co, &bc)
+
+	if err != nil || conv == nil {
+		t.Fatal("Fatal: can not create converter")
+	}
+
+	i, perr := ParseBaseValue(conv, &bc)
+
+	if perr != nil {
+		t.Fatalf("Fatal: can not parse base value '%v'", expVal)
+	}
+
+	// When
+	result := ApplyBaseContext(&co, i, &bc)
+
+	// Then
+	if reflect.TypeOf(result).Name() != reflect.TypeOf(bc).Name() {
+		t.Errorf("Failure: ApplyBaseContext expect a BaseContext as return but get %s", reflect.TypeOf(result).Name())
+	}
+	if result.Dec == "" {
+		t.Errorf("Failure: BaseContext Decimal expect %s  but get empty string", expVal)
+	}
+	if result.Hex == "" {
+		t.Errorf("Failure: BaseContext Hexadecimal expect %s  but get empty string", expVal)
+	}
+	if result.Oct == "" {
+		t.Errorf("Failure: BaseContext Octal expect %s  but get empty string", expVal)
+	}
+	if result.Bin == "" {
+		t.Errorf("Failure: BaseContext Binary expect %s  but get empty string", expVal)
+	}
+}
