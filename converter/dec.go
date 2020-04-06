@@ -27,9 +27,14 @@ func (c *DecConverter) ApplyPipeInput(s *bufio.Scanner, bc *BaseContext) error {
 	return errors.New("Dec parameter shall be set to '-' when read from pipe")
 }
 
-// ApplyContext apply an int64 value to decimal value as string into base context dec data
-func (c *DecConverter) ApplyContext(v int64, bc *BaseContext) BaseContext {
+// ApplyContext apply an int64 value to binary value as string into base context bin data
+func (c *DecConverter) ApplyContext(v int64, bc *BaseContext, m *map[string]string) BaseContext {
 	bc.Dec = strconv.FormatInt(v, 10)
+	e, ok := (*m)["d"]
+	if !ok {
+		e = "0"
+	}
+	bc.Declz = "%0" + e + "s"
 	return *bc
 }
 

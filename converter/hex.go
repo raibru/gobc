@@ -27,9 +27,14 @@ func (c *HexConverter) ApplyPipeInput(s *bufio.Scanner, bc *BaseContext) error {
 	return errors.New("Hex parameter shall be set to '-' when read from pipe")
 }
 
-// ApplyContext apply an int64 value to hexadecimal value as string into base context hex data
-func (c *HexConverter) ApplyContext(v int64, bc *BaseContext) BaseContext {
+// ApplyContext apply an int64 value to binary value as string into base context bin data
+func (c *HexConverter) ApplyContext(v int64, bc *BaseContext, m *map[string]string) BaseContext {
 	bc.Hex = strconv.FormatInt(v, 16)
+	e, ok := (*m)["x"]
+	if !ok {
+		e = "0"
+	}
+	bc.Hexlz = "%0" + e + "s"
 	return *bc
 }
 

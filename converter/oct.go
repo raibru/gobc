@@ -27,9 +27,14 @@ func (c *OctConverter) ApplyPipeInput(s *bufio.Scanner, bc *BaseContext) error {
 	return errors.New("Oct parameter shall be set to '-' when read from pipe")
 }
 
-// ApplyContext apply an int64 value to octal value as string into base context oct data
-func (c *OctConverter) ApplyContext(v int64, bc *BaseContext) BaseContext {
+// ApplyContext apply an int64 value to binary value as string into base context bin data
+func (c *OctConverter) ApplyContext(v int64, bc *BaseContext, m *map[string]string) BaseContext {
 	bc.Oct = strconv.FormatInt(v, 8)
+	e, ok := (*m)["o"]
+	if !ok {
+		e = "0"
+	}
+	bc.Octlz = "%0" + e + "s"
 	return *bc
 }
 

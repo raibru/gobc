@@ -59,13 +59,20 @@ func Test_HexApplyContext_ExpectSuccess(t *testing.T) {
 	var vexp string
 	var v int64
 
+	leadZero := "x:0"
+
 	// When
+	m, ferr := ParseLeadingZero(leadZero)
 	vexp = "1"
 	v, perr := strconv.ParseInt(vexp, 16, 64)
 	bctx.Hex = ""
-	exp := hc.ApplyContext(v, &bctx)
+	exp := hc.ApplyContext(v, &bctx, m)
 
 	// Then
+	if ferr != nil {
+		t.Fatalf("Fatal: ParseLeadingZero (%s) failed: %v", leadZero, ferr)
+	}
+
 	if perr != nil {
 		t.Fatalf("Fatal: expect no error ParseInt %v to base 16: %v", vexp, perr)
 	}

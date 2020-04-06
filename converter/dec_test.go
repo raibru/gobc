@@ -59,13 +59,19 @@ func Test_DecApplyContext_ExpectSuccess(t *testing.T) {
 	var vexp string
 	var v int64
 
+	leadZero := "b:0"
+
 	// When
+	m, ferr := ParseLeadingZero("d:0")
 	vexp = "1"
 	v, perr := strconv.ParseInt(vexp, 10, 64)
 	bctx.Dec = ""
-	exp := dc.ApplyContext(v, &bctx)
+	exp := dc.ApplyContext(v, &bctx, m)
 
 	// Then
+	if ferr != nil {
+		t.Fatalf("Fatal: ParseLeadingZero (%s) failed: %v", leadZero, ferr)
+	}
 	if perr != nil {
 		t.Fatalf("Fatal: expect no error ParseInt %v to base 10: %v", vexp, perr)
 	}

@@ -59,13 +59,19 @@ func Test_BinApplyContext_ExpectSuccess(t *testing.T) {
 	var vexp string
 	var v int64
 
+	leadZero := "b:0"
+
 	// When
+	m, ferr := ParseLeadingZero("b:0")
 	vexp = "1"
 	v, perr := strconv.ParseInt(vexp, 2, 64)
 	bctx.Bin = ""
-	exp := bc.ApplyContext(v, &bctx)
+	exp := bc.ApplyContext(v, &bctx, m)
 
 	// Then
+	if ferr != nil {
+		t.Fatalf("Fatal: ParseLeadingZero (%s) failed: %v", leadZero, ferr)
+	}
 	if perr != nil {
 		t.Fatalf("Fatal: expect no error ParseInt %v to base 2: %v", vexp, perr)
 	}

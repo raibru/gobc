@@ -28,8 +28,13 @@ func (c *BinConverter) ApplyPipeInput(s *bufio.Scanner, bc *BaseContext) error {
 }
 
 // ApplyContext apply an int64 value to binary value as string into base context bin data
-func (c *BinConverter) ApplyContext(v int64, bc *BaseContext) BaseContext {
+func (c *BinConverter) ApplyContext(v int64, bc *BaseContext, m *map[string]string) BaseContext {
 	bc.Bin = strconv.FormatInt(v, 2)
+	e, ok := (*m)["b"]
+	if !ok {
+		e = "0"
+	}
+	bc.Binlz = "%0" + e + "s"
 	return *bc
 }
 
@@ -45,4 +50,14 @@ func (c *BinConverter) ParseInt64(bc *BaseContext) (int64, error) {
 // Exists checks type specific BaseContext binary value
 func (c *BinConverter) Exists(bc *BaseContext) bool {
 	return len(bc.Bin) > 0
+}
+
+// PrintFormat return string used by Printf for binaries
+func (c *BinConverter) PrintFormat(bc *BaseContext, m *map[string]string) string {
+	v, ok := (*m)["b"]
+	if !ok {
+		v = "0"
+	}
+	return "%0" + v + "s"
+
 }
