@@ -8,7 +8,7 @@ import (
 // var hold global variable
 var (
 	Header  = "gobc - go base converter" // Header data
-	Version = "v0.9.5rc"
+	Version = "v0.9.5rc1"
 	Author  = "rbr <raibru@web.de>"
 	License = "MIT"
 )
