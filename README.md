@@ -32,13 +32,24 @@ Usage:
   gobc [flags]
 
 Flags:
-  -b, --bin string   convert string number from binary
-  -d, --dec string   convert string number from decimal
-  -h, --help         help for gobc
-  -x, --hex string   convert string number from hexadecimal
-  -o, --oct string   convert string number from octal
-  -p, --prefix       display converted values with base prefix
-  -v, --version      display gobc version
+  -b, --bin string         convert string number from binary.
+                           Read from pipe use '.' as parameter
+  -d, --dec string         convert string number from decimal.
+                           Read from pipe use '.' as parameter
+  -h, --help               help for gobc
+  -x, --hex string         convert string number from hexadecimal.
+                           Read from pipe use '.' as parameter
+      --lead-zero string   Print data with leading zeros
+                           defined by a string and separated by ','
+                           e.g 'x:4,d:2,o:3,b:8'
+                             hex: x:4 -> 4 leading zeros
+                             dec: d:2 -> 2 leading zeros
+                             oct: o:3 -> 3 leading zeros
+                             bin: b:8 -> 8 leading zeros
+  -o, --oct string         convert string number from octal.
+                           Read from pipe use '.' as parameter
+  -p, --prefix             display converted values with base prefix
+  -v, --version            display gobc version
 ```
 
 ```shell
@@ -49,6 +60,16 @@ $ gobc -d 42
 ```shell
 $ gobc -d 42 -p
 0x2a 0d42 0o52 0b101010
+```
+
+Leading zeros
+-------------
+
+If the output value shall have a length of 8 but is less then this the leading zero parameter fill up to given lenght with leading zeros, e.g:
+
+```shell
+$ gobc -d 1 --lead-zero x:4,b:8
+0001 1 1 00000001
 ```
 
 Build
