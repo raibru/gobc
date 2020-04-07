@@ -51,13 +51,3 @@ func (c *BinConverter) ParseInt64(bc *BaseContext) (int64, error) {
 func (c *BinConverter) Exists(bc *BaseContext) bool {
 	return len(bc.Bin) > 0
 }
-
-// PrintFormat return string used by Printf for binaries
-func (c *BinConverter) PrintFormat(bc *BaseContext, m *map[string]string) string {
-	v, ok := (*m)["b"]
-	if !ok {
-		v = "0"
-	}
-	return "%0" + v + "s"
-
-}
