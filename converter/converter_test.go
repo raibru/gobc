@@ -206,3 +206,58 @@ func Test_ApplyBaseContext_ExpectSuccess(t *testing.T) {
 		t.Errorf("Failure: BaseContext Binary expect %s  but get empty string", expVal)
 	}
 }
+
+func Test_ParseLeadingZerosSingle(t *testing.T) {
+	//t.Fatal("Check Failure")
+	// Given
+	tables := []struct {
+		input         string
+		expectedKey   string
+		expectedValue string
+	}{
+		{"x:0", "x", "0"},
+		{"x:1", "x", "1"},
+		{"d:0", "d", "0"},
+		{"d:1", "d", "1"},
+		{"o:0", "o", "0"},
+		{"o:1", "o", "1"},
+		{"b:0", "b", "0"},
+		{"b:1", "b", "1"},
+	}
+
+	for _, table := range tables {
+
+		// When
+		bc := BaseContext{
+			Bin: "1",
+		}
+
+		var co = []Convertable{}
+		co = append(co, &HexConverter{})
+		co = append(co, &DecConverter{})
+		co = append(co, &OctConverter{})
+		co = append(co, &BinConverter{})
+
+		conv, err := CreateConverter(&co, &bc)
+
+		if err != nil || conv == nil {
+			t.Fatal("Fatal: can not create converter")
+		}
+
+		m, err := ParseLeadingZero(table.input)
+
+		// Then
+		if err != nil {
+			t.Fatalf("Fatal: can not parse leading zeros for '%s': '%v'", table.input, err)
+		}
+
+		output, ok := (*m)[table.expectedKey]
+		if !ok {
+			t.Fatalf("Fatal: key '%s' not found for: '%s'", table.expectedKey, table.input)
+		}
+
+		if table.expectedValue != output {
+			t.Errorf("Failure: Leading zero expect '%s' but get '%s'", table.expectedValue, output)
+		}
+	}
+}
