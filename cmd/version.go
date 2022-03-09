@@ -7,15 +7,19 @@ import (
 
 // var hold global variable
 var (
-	Header  = "gobc - go base converter" // Header data
-	Version = "v0.9.5rc1"
-	Author  = "rbr <raibru@web.de>"
-	License = "MIT"
+	major     = "0"
+	minor     = "9"
+	patch     = "5"
+	buildInfo = "-"
+	appName   = "gobc - go base converter"
+	author    = "raibru <github.com/raibru>"
+	license   = "MIT License (c) 2020 raibru"
 )
 
 // PrintVersion prints the tool versions string
 func PrintVersion(w io.Writer) {
-	fmt.Fprintf(w, Header+" - "+Version+"\n")
-	fmt.Fprintf(w, "  "+Author+"\n")
-	fmt.Fprintf(w, "  "+"License:"+License+"\n\n")
+	fmt.Fprintf(w, "%s - v%s.%s.%s\n", appName, major, minor, patch)
+	fmt.Fprintf(w, "  Build : %s\n", buildInfo)
+	fmt.Fprintf(w, "  Author : %s\n", author)
+	fmt.Fprintf(w, "  License: %s\n\n", license)
 }
