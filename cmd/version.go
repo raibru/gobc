@@ -13,7 +13,7 @@ var (
 	buildInfo = "-"
 	appName   = "gobc - go base converter"
 	author    = "raibru <github.com/raibru>"
-	license   = "MIT License (c) 2020 raibru"
+	license   = "MIT License"
 )
 
 // PrintVersion prints the tool versions string
