@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "golang.go",
+    "soren.go-coverage-viewer",
+    "xmtt.go-mod-grapher",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "yzhang.markdown-all-in-one"
+  ]
