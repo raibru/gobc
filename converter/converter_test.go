@@ -2,11 +2,72 @@ package converter
 
 import (
 	"bufio"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 )
+
+func Test_NewConverterType_CreateHexType_Successful(t *testing.T) {
+	//t.Fatal("Check Failure")
+	//Given
+	want := "converter.HexType"
+
+	// When
+	o := NewConverterType[HexType]()
+	got := fmt.Sprintf("%T", o)
+
+	// Then
+	if got != want {
+		t.Errorf("Want '%s' but got '%s'", want, got)
+	}
+}
+
+func Test_NewConverterType_CreateDecType_Successful(t *testing.T) {
+	//t.Fatal("Check Failure")
+	//Given
+	want := "converter.DecType"
+
+	// When
+	o := NewConverterType[DecType]()
+	got := fmt.Sprintf("%T", o)
+
+	// Then
+	if got != want {
+		t.Errorf("Want '%s' but got '%s'", want, got)
+	}
+}
+
+func Test_NewConverterType_CreateOctType_Successful(t *testing.T) {
+	//t.Fatal("Check Failure")
+	//Given
+	want := "converter.OctType"
+
+	// When
+	o := NewConverterType[OctType]()
+	got := fmt.Sprintf("%T", o)
+
+	// Then
+	if got != want {
+		t.Errorf("Want '%s' but got '%s'", want, got)
+	}
+}
+
+func Test_NewConverterType_CreateBinType_Successful(t *testing.T) {
+	//t.Fatal("Check Failure")
+	//Given
+	want := "converter.BinType"
+
+	// When
+	o := NewConverterType[BinType]()
+	got := fmt.Sprintf("%T", o)
+
+	// Then
+	if got != want {
+		t.Errorf("Want '%s' but got '%s'", want, got)
+	}
+}
 
 func Test_ApplyPipeInput_ExpectSuccess(t *testing.T) {
 	//t.Fatal("Check Failure")
