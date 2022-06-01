@@ -1,89 +1,142 @@
 package converter
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
-	"os"
+	"io"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
-// Convertable interface describe the convert behavior
-type Convertable interface {
-	ApplyPipeInput(s *bufio.Scanner, bc *BaseContext) error
-	ApplyContext(v int64, ob *BaseContext, m *map[string]string) BaseContext
-	ParseInt64(ob *BaseContext) (int64, error)
-	Exists(ob *BaseContext) bool
+// ConverterType interface defines an interface type constraint
+type ConverterTypes interface {
+	HexType | DecType | OctType | BinType
 }
 
-// ApplyPipeInput use data from pipe if assigned
-func ApplyPipeInput(s *bufio.Scanner, co *[]Convertable, bc *BaseContext) error {
-	for _, c := range *co {
-		perr := c.ApplyPipeInput(s, bc)
-		if perr != nil {
-			return perr
+// NewConverterType create a new generic ConverterType object
+func NewConverterType[T ConverterTypes](v uint64) *T {
+	t := T{
+		Base: BaseType{Number: v, IsInit: false},
+	}
+	return &t
+}
+
+// Converter interface handles converter behavior
+type Converter interface {
+	Init()
+	SetupBy(*Parameters) error
+	String() string
+}
+
+// Parameters hold data from arguments
+type Parameters struct {
+	Hex       string
+	Dec       string
+	Oct       string
+	Bin       string
+	LeadZeros string
+	UsePrefix bool
+}
+
+//// ApplyPipeInput use data from pipe if assigned
+//func ApplyPipeInput(s *bufio.Scanner, co *[]Convertable, bc *BaseContext) error {
+//	for _, c := range *co {
+//		perr := c.ApplyPipeInput(s, bc)
+//		if perr != nil {
+//			return perr
+//		}
+//	}
+//	return nil
+//}
+
+// ParseBaseValue parse base number value from given parameter
+func ParseBaseValue(p *Parameters) (uint64, error) {
+	var once = []int{}
+	var value uint64
+	if p.Hex != "" {
+		v, err := strconv.ParseUint(p.Hex, 16, 64)
+		if err != nil {
+			return 0, err
 		}
+		value = v
+		once = append(once, 1)
 	}
-	return nil
-}
 
-// CreateConverter create a new convertable object depends of used parameter
-func CreateConverter(co *[]Convertable, bc *BaseContext) (Convertable, error) {
-	var si = []int{}
-	for i, c := range *co {
-		if c.Exists(bc) {
-			si = append(si, i)
+	if p.Dec != "" {
+		v, err := strconv.ParseUint(p.Dec, 10, 64)
+		if err != nil {
+			return 0, err
 		}
+		value = v
+		once = append(once, 1)
 	}
-	if len(si) == 0 {
-		return nil, errors.New("Need a parameter to convert into bases")
-	} else if len(si) > 1 {
-		return nil, errors.New("Only one parameter shall be used")
+
+	if p.Oct != "" {
+		v, err := strconv.ParseUint(p.Oct, 8, 64)
+		if err != nil {
+			return 0, err
+		}
+		value = v
+		once = append(once, 1)
 	}
-	return (*co)[si[0]], nil
+
+	if p.Bin != "" {
+		v, err := strconv.ParseUint(p.Bin, 2, 64)
+		if err != nil {
+			return 0, err
+		}
+		value = v
+		once = append(once, 1)
+	}
+
+	if len(once) == 0 {
+		return 0, errors.New("need one parameter to convert into bases")
+	} else if len(once) > 1 {
+		return 0, errors.New("only one parameter shall be used")
+	}
+
+	return value, nil
 }
 
-// ParseBaseValue parse the base value as int64 type value
-func ParseBaseValue(c Convertable, bc *BaseContext) (int64, error) {
-	return c.ParseInt64(bc)
-}
-
-// ApplyBaseContext apply convertable from int64 into base context
-func ApplyBaseContext(cs *[]Convertable, v int64, bc *BaseContext) BaseContext {
-	m, err := ParseLeadingZero(bc.LeadZero)
-	if err != nil {
-		fmt.Printf("Has format parsing error: %v", err)
-		os.Exit(2) // change to error
-	}
-	for _, c := range *cs {
-		c.ApplyContext(v, bc, m)
-	}
-	return *bc
-}
-
-// ParseLeadingZero evaluate the print format string and split it into a map
-func ParseLeadingZero(pf string) (*map[string]string, error) {
+// ParseLeadingZeros parse leading zeros for bases by given base id used by print format string
+func ParseLeadingZeros(lzp string, bid string) (string, error) {
 	m := make(map[string]string)
-	if pf != "" {
-		elems := strings.Split(pf, ",")
+	if lzp != "" {
+		elems := strings.Split(lzp, ",")
+		r, err := regexp.Compile(`^[xdob]:\d+$`)
+		if err != nil {
+			return "0", err
+		}
+
 		for _, e := range elems {
-			isMatch, merr := regexp.MatchString("^[xdob]:\\d+$", e)
-			if merr != nil {
-				return &m, merr
-			}
+			isMatch := r.MatchString(e)
 			if !isMatch {
-				return &m, errors.New("Failure in print-format: " + pf)
+				return "0", errors.New("failure in print-format: " + lzp)
 			}
 			parts := strings.Split(e, ":")
 			_, ok := m[parts[0]]
 			if ok {
-				return &m, errors.New("Base type can be defined only once: " + pf)
+				return "0", errors.New("base type can be defined only once: " + lzp)
 			}
 			v := parts[1]
 			m[parts[0]] = v
 		}
 	}
 
-	return &m, nil
+	e, ok := (m)[bid]
+	if !ok {
+		e = "0"
+	}
+	return e, nil
+}
+
+// PrintBases print all base string values to a writer
+func PrintBases(bs []Converter, w io.Writer) {
+	l := []string{}
+	for _, b := range bs {
+		l = append(l, b.String())
+	}
+	out := strings.Join(l, " ")
+	fmt.Fprintf(w, "%s\n", out)
 }
