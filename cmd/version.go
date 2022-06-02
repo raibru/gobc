@@ -8,8 +8,8 @@ import (
 // var hold global variable
 var (
 	major     = "0"
-	minor     = "9"
-	patch     = "5"
+	minor     = "10"
+	patch     = "0"
 	buildInfo = "-"
 	appName   = "gobc - go base converter"
 	author    = "raibru <github.com/raibru>"
